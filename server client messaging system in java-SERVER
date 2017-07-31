@@ -1,0 +1,70 @@
+import java.net.*;
+import java.io.*;
+class Server
+{
+	ServerSocket ss;
+	Socket s;
+	ObjectInputStream obis;
+	ObjectOutputStream obos;
+	
+	Server()
+	{
+		try
+		{
+			ss=new ServerSocket(3304);
+			System.out.println("server online and waiting");
+			s=ss.accept();
+			System.out.println("1 client connected");
+			Thread reader=new Thread()
+			{
+				public void run()
+				{
+					while(true)
+					{
+						try
+						{	
+							obis=new ObjectInputStream(s.getInputStream());
+							String msg=obis.readObject()+"";
+							System.out.println(msg);
+						}	
+						catch(Exception e)
+						{
+							e.printStackTrace();
+						}
+					}
+				}
+				
+			};	
+			Thread writer=new Thread()
+			{
+				public void run()
+				{
+					try
+					{
+						while(true)
+						{	
+							obos=new ObjectOutputStream(s.getOutputStream());
+							String msg=new java.util.Scanner(System.in).nextLine();
+							obos.writeObject("Server: "+msg);
+							obos.flush();
+						}
+					}
+					catch(Exception e)
+					{
+						e.printStackTrace();
+					}
+				}
+			};
+			reader.start();
+			writer.start();	
+		}
+		catch(Exception r)
+		{
+			r.printStackTrace();
+		}	
+	}
+	public static void main(String SERVER[])
+	{
+		new Server();
+	}
+}
